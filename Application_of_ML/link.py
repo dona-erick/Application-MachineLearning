@@ -1,5 +1,5 @@
 import streamlit as st
-
+import distutils.core
 
 def profile():
     st.title("Mon Profil")
