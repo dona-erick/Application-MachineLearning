@@ -29,3 +29,5 @@ def navigate():
         profile()
     elif st.session_state["page"] == "Train":
         train()
+if "page" not in st.session_state:
+    st.session_state["page"] = "Home"

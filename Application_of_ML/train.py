@@ -78,11 +78,18 @@ def train():
             features = [col for col in features if col not in date_features]
         
         #if data[features].dtype == 'datetime':
-        
+        #if data is None or target is None or not features:
+         #   st.error("Les données, la cible, ou les caractéristiques ne sont pas définies.")
+          #  return None, None
         
         ### definir les features et les targets
         X = data[features]
         y = data[target]
+        
+         # Vérifier que X n’est pas vide avant le scaling
+        if X.empty or y.empty:
+            st.error("Les données de caractéristiques ou la cible sont vides après le prétraitement.")
+            return None, None
         ### normaliser les données
         X_scaler = StandardScaler().fit_transform(X)
         
@@ -110,7 +117,7 @@ def train():
         return model
             
     ### chargement de fichier 
-    files = st.sidebar.file_uploader('Download your files for training of model', type=['csv'], key = 'uploader_csv')
+    files = st.sidebar.file_uploader('Download your files for training of model', type=['csv', "xlsx"], key = 'uploader_training')
     if files is not None:
         data = loading_data(files)
         st.write('Aperçu des données:', data.sample(5))
@@ -171,7 +178,7 @@ def train():
         model.fit(Xtrain, ytrain)
         ypred = model.predict(Xtest)
         if model_name in ["LogisticRegression","RandomForestClassifier",'DecisionTreeClassifier','BaggingClassifier','KNeighborsClassifier']:
-            Accuracy = accuracy_score(ypred, ytest)
+            Accuracy = accuracy_score(ypred, ytest, average = 'micro')
             Precision = precision_score(ypred, ytest)
         
             st.write(f"\n Les performances du modele sont: \n {Accuracy} et le score de precison : {Precision}")
