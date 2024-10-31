@@ -8,7 +8,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve, precision_score, confusion_matrix, classification_report, auc
 from sklearn.model_selection import train_test_split, GridSearchCV, GroupKFold
 from sklearn.linear_model import LogisticRegression,LinearRegression, Ridge
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, HistGradientBoostingClassifier, BaggingClassifier, VotingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, HistGradientBoostingClassifier, BaggingClassifier
 from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier,ExtraTreeClassifier
 from sklearn.naive_bayes import MultinomialNB, GaussianNB
