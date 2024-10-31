@@ -68,9 +68,9 @@ jupyterlab_server==2.27.3
 jupyterlab_widgets==3.0.10
 kagglehub==0.3.0
 #
-langcodes==3.4.0
-language-selector==0.1
-language_data==1.2.0
+#langcodes==3.4.0
+#language-selector==0.1
+#language_data==1.2.0
 #
 Markdown==3.6
 markdown-it-py==3.0.0
