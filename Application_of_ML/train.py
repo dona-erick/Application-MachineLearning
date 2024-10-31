@@ -7,10 +7,14 @@ import streamlit as st
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve, precision_score, confusion_matrix, classification_report, auc
 from sklearn.model_selection import train_test_split, GridSearchCV, GroupKFold
-from sklearn.linear_model import LogisticRegression,LinearRegression, Ridge
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, HistGradientBoostingClassifier, BaggingClassifier
+from sklearn.linear_model import LogisticRegression,LinearRegression, Ridge, Lasso
+from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier, 
+                              HistGradientBoostingClassifier, BaggingClassifier, VotingClassifier, ExtraTreesClassifier, HistGradientBoostingRegressor, BaggingRegressor,
+                              GradientBoostingRegressor, RandomForestRegressor, VotingRegressor, ExtraTreesRegressor)
 from sklearn.svm import SVC, LinearSVC
-from sklearn.tree import DecisionTreeClassifier,ExtraTreeClassifier
+from sklearn.tree import (DecisionTreeClassifier,ExtraTreeClassifier, DecisionTreeRegressor, ExtraTreeRegressor)
+from xgboost import XGBClassifier, XGBRegressor, XGBRFClassifier, XGBRFRegressor
+from catboost import CatBoostClassifier, CatBoostRegressor
 from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from imblearn.over_sampling import SMOTE
@@ -114,15 +118,28 @@ def train():
             model = RandomForestClassifier(**params)
         elif model_name == 'Linear regression':
             model = LinearRegression(**params)
+        if model_name == 'BaggingRegressor':
+            model = BaggingRegressor(**params)
+        elif model_name == "Voting":
+            model = VotingClassifier(**params)
+        elif model_name == "Votingregessor":
+            model = VotingRegressor(**params)
+        elif model_name == "DecisionTreeregressor":
+            model = DecisionTreeRegressor(**params)
+        elif model_name == "Lasso":
+            model = Lasso(**params)
+        elif model_name == "RandomForestRegressor":
+            model = RandomForestRegressor(**params)
+        elif model_name == 'ridge':
+            model = Ridge(**params)
         return model
             
     ### chargement de fichier 
-    files = st.sidebar.file_uploader('Download your files for training of model', type=['csv', "xlsx"], key = 'uploader_training')
+    files = st.sidebar.file_uploader('Download your files', type=["csv", "xlsx"], key="csv", accept_multiple_files=True)
     if files is not None:
         data = loading_data(files)
         st.write('Aperçu des données:', data.sample(5))
         st.write('Statistique des données:', data.describe())
-        st.write('')
         
         
         ### selectionner la colonne cible
