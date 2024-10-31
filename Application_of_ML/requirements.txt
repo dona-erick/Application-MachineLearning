@@ -112,7 +112,6 @@ python-multipart==0.0.9
 scikit-learn==1.5.2
 scipy==1.13.1
 seaborn==0.13.2
-€.1
 #sortedcontainers==2.4.0
 #soupsieve==2.5
 #spacy==3.7.6
