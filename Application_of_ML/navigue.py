@@ -1,33 +1,26 @@
-# navigue.py
 import streamlit as st
 from home import home_page
 from link import profile
 from train import train
 
 def navigate():
-
-    # Définir la page par défaut si elle n'est pas encore définie
-
+    # Initialiser la page par défaut si elle n'est pas encore définie
+    if "page" not in st.session_state:
+        st.session_state["page"] = "Home"
 
     # Menu de navigation dans la barre latérale
     page = st.sidebar.radio("Navigation", ["Home", "Profil", "Train"])
-    
-    if page == "Home":
-        
-        #### code integree
-        home_page()
-        if st.button('Faire un essai'):
-            st.session_state["page"] = "Train"
-            train()
-    elif page == "Profil":
-        st.session_state["page"] = "Profil"
+
+    # Mettre à jour la page actuelle selon la sélection
+    st.session_state["page"] = page
 
     # Afficher la page appropriée
     if st.session_state["page"] == "Home":
         home_page()
+        if st.button('Faire un essai'):
+            st.session_state["page"] = "Train"
+            train()  # Rediriger vers la page de modélisation
     elif st.session_state["page"] == "Profil":
         profile()
     elif st.session_state["page"] == "Train":
         train()
-if "page" not in st.session_state:
-    st.session_state["page"] = "Home"

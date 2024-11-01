@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 import streamlit as st
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve, precision_score, confusion_matrix, classification_report, auc
+from sklearn.metrics import accuracy_score, recall_score, f1_score, roc_auc_score, roc_curve, precision_score, confusion_matrix, classification_report, auc
 from sklearn.model_selection import train_test_split, GridSearchCV, GroupKFold
 from sklearn.linear_model import LogisticRegression,LinearRegression, Ridge, Lasso
 from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier, 
@@ -26,18 +26,19 @@ def train():
 
     st.title('Application de Machine Learning Interactif')
 
-    st.markdown("""Cette application est construite dans le but de vous aider à 
-                réaliser vos modèles d'apprentissage automatiques plus 
-                facilement sans écrire des lignes de codes. """)
-
+    st.markdown(
+        """
+            Bienvenue sur TrainingApp
+            Transformez vos données en insights puissants grâce à TrainingApp,
+            votre plateforme d'apprentissage automatique intuitive !
+        """
+    )
     ### chargement des données
-    def loading_data(files):
-        if files:
-            data = pd.read_csv(files)
-            return data
-        elif files:
-            data = pd.read_xlsx(files)
-            return data
+    def loading_data(file):
+        if file.name.endswith(".csv"):
+            return pd.read_csv(file)
+        elif file.name.endswith(".xlsx"):
+            return pd.read_excel(file)
     @st.cache_data(persist=True)  
 
     ### definir une fonction de prétraitement
@@ -105,6 +106,7 @@ def train():
         return X, y
 
     ### modeles
+    ## Fonction pour instancier les modèles et configurer leurs paramètres
     def get_model(model_name, params):
         if model_name == 'BaggingClassifier':
             model = BaggingClassifier(**params)
@@ -116,26 +118,58 @@ def train():
             model = LogisticRegression(**params)
         elif model_name == "RandomForestClassifier":
             model = RandomForestClassifier(**params)
-        elif model_name == 'Linear regression':
+        elif model_name == "GradientBoostingClassifier":
+            model = GradientBoostingClassifier(**params)
+        elif model_name == "HistGradientBoostingClassifier":
+            model = HistGradientBoostingClassifier(**params)
+        elif model_name == "SVC":
+            model = SVC(**params)
+        elif model_name == "LinearSVC":
+            model = LinearSVC(**params)
+        elif model_name == "ExtraTreesClassifier":
+            model = ExtraTreesClassifier(**params)
+        elif model_name == "MultinomialNB":
+            model = MultinomialNB(**params)
+        elif model_name == "GaussianNB":
+            model = GaussianNB(**params)
+        elif model_name == "XGBClassifier":
+            model = XGBClassifier(**params)
+        elif model_name == "XGBRFClassifier":
+            model = XGBRFClassifier(**params)
+        elif model_name == "CatBoostClassifier":
+            model = CatBoostClassifier(**params, verbose=False)
+        
+        # Pour les régressions
+        elif model_name == "LinearRegression":
             model = LinearRegression(**params)
-        if model_name == 'BaggingRegressor':
-            model = BaggingRegressor(**params)
-        elif model_name == "Voting":
-            model = VotingClassifier(**params)
-        elif model_name == "Votingregessor":
-            model = VotingRegressor(**params)
-        elif model_name == "DecisionTreeregressor":
-            model = DecisionTreeRegressor(**params)
+        elif model_name == "Ridge":
+            model = Ridge(**params)
         elif model_name == "Lasso":
             model = Lasso(**params)
         elif model_name == "RandomForestRegressor":
             model = RandomForestRegressor(**params)
-        elif model_name == 'ridge':
-            model = Ridge(**params)
+        elif model_name == "GradientBoostingRegressor":
+            model = GradientBoostingRegressor(**params)
+        elif model_name == "HistGradientBoostingRegressor":
+            model = HistGradientBoostingRegressor(**params)
+        elif model_name == "BaggingRegressor":
+            model = BaggingRegressor(**params)
+        elif model_name == "ExtraTreesRegressor":
+            model = ExtraTreesRegressor(**params)
+        elif model_name == "VotingClassifier":
+            model = VotingClassifier(**params)
+        elif model_name == "VotingRegressor":
+            model = VotingRegressor(**params)
+        elif model_name == "XGBRegressor":
+            model = XGBRegressor(**params)
+        elif model_name == "XGBRFRegressor":
+            model = XGBRFRegressor(**params)
+        elif model_name == "CatBoostRegressor":
+            model = CatBoostRegressor(**params, verbose=False)
         return model
             
     ### chargement de fichier 
-    files = st.sidebar.file_uploader('Download your files', type=["csv", "xlsx"], key="csv", accept_multiple_files=True)
+    files = st.sidebar.file_uploader('Download your files', type=["csv", "xlsx"], key="csv")
     if files is not None:
         data = loading_data(files)
         st.write('Aperçu des données:', data.sample(5))
@@ -151,54 +185,100 @@ def train():
         
 
         
-        ### selection des modèles de machine learning
-        model_name = st.sidebar.selectbox("Define your model machine learning ",(
-            "LogisticRegression",
-            "RandomForestClassifier",
-            'DecisionTreeClassifier',
-            'BaggingClassifier',
-            'KNeighborsClassifier',
-            "Linear regression"
-        ) )
+        
         ### stockers les paramètres du modèle
+        model_name = st.sidebar.selectbox("Définissez votre modèle de machine learning", (
+            "LogisticRegression", "RandomForestClassifier", 
+            "DecisionTreeClassifier", "BaggingClassifier", 
+            "KNeighborsClassifier", "LinearRegression", 
+            "GradientBoostingClassifier", "HistGradientBoostingClassifier",
+            "SVC", "XGBClassifier", "CatBoostClassifier",'Ridge', 'Lasso',
+            'RandomForestRegressor', 'GradientBoostingRegressor',
+            'BaggingRegressor', 'HistGradientBoostingRegressor', 'XGBRegressor'))
+
         params = {}
         if model_name == "LogisticRegression":
             params["C"] = st.sidebar.slider("C", 0.01, 1.0)
-            #params["fit_intercept"] = st.sidebar.selectbox("fit_intercept", ('True', 'False'))
-            params["penalty"] = st.sidebar.selectbox('penalty', ("l2", "elasticnet"))
-            params["solver"] = st.sidebar.selectbox('solver', ('lbfgs', "liblinear", "saga"))
-            
+            params["penalty"] = st.sidebar.selectbox("penalty", ("l2", "elasticnet"))
+            params["solver"] = st.sidebar.selectbox("solver", ("lbfgs", "liblinear", "saga"))
         elif model_name == "RandomForestClassifier":
-            params['n_estimators'] = st.sidebar.slider('n_estimators', 100, 500)
-            params['max_depth'] = st.sidebar.slider('max_depth', 2, 10)
-            params["criterion"] = st.sidebar.selectbox('criterion', ('gini', 'log_loss'))
-        elif model_name == "BaggingClassifier":
-            params["n_estimators"] = st.sidebar.slider('n_estimators', 1, 10)
-            params['max_features'] =st.sidebar.slider('max_features', 0.0, 1.0)
-        elif model_name == "DecisionTreeClassifier":
-            params['criterion'] = st.sidebar.selectbox('critère', ('gini', 'log_loss'))
-            params['max_depth'] = st.sidebar.slider("max_depth", 1, 10)
-            params['max_features'] = st.sidebar.slider('max_features', 0.0, 1.0)
-            
-        elif model_name == 'KNeighborsClassifier':
-            params["n_neighbors"] = st.sidebar.slider('Nombre de voisins', 1, 10)
-            params['algorithm'] = st.sidebar.selectbox('Algorithm', ('auto', 'ball_tree', 'kde_tree', "brute"))
+            params["n_estimators"] = st.sidebar.slider("n_estimators", 100, 500)
+            params["max_depth"] = st.sidebar.slider("max_depth", 2, 10)
+            params["criterion"] = st.sidebar.selectbox("criterion", ("gini", "entropy"))
+        elif model_name == "GradientBoostingClassifier":
+            params["n_estimators"] = st.sidebar.slider("n_estimators", 50, 500)
+            params["learning_rate"] = st.sidebar.slider("learning_rate", 0.01, 1.0)
+            params["max_depth"] = st.sidebar.slider("max_depth", 2, 10)
+        elif model_name == "SVC":
+            params["C"] = st.sidebar.slider("C", 0.01, 10.0)
+            params["kernel"] = st.sidebar.selectbox("kernel", ("linear", "poly", "rbf", "sigmoid"))
+        elif model_name == "XGBClassifier":
+            params["n_estimators"] = st.sidebar.slider("n_estimators", 100, 500)
+            params["learning_rate"] = st.sidebar.slider("learning_rate", 0.01, 1.0)
+            params["max_depth"] = st.sidebar.slider("max_depth", 3, 10)
+        elif model_name == "CatBoostClassifier":
+            params["iterations"] = st.sidebar.slider("iterations", 100, 1000)
+            params["learning_rate"] = st.sidebar.slider("learning_rate", 0.01, 1.0)
+            params["depth"] = st.sidebar.slider("depth", 2, 10)
+        elif model_name == 'RandomForestRegressor':
+            params['n_estimators'] = st.sidebar.slider('n_estimators', 100, 500, 100)
+            params['max_depth'] = st.sidebar.slider('max_depth', 1, 20)
+            params['min_samples_split'] = st.sidebar.slider('min_samples_split', 2, 10)
+
+        elif model_name == 'GradientBoostingRegressor':
+            params['n_estimators'] = st.sidebar.slider('n_estimators', 100, 500, 100)
+            params['learning_rate'] = st.sidebar.slider('learning_rate', 0.01, 0.3, 0.1)
+            params['max_depth'] = st.sidebar.slider('max_depth', 1, 10)
+
+        elif model_name == 'HistGradientBoostingRegressor':
+            params['learning_rate'] = st.sidebar.slider('learning_rate', 0.01, 0.3, 0.1)
+            params['max_iter'] = st.sidebar.slider('max_iter', 100, 500, 100)
+            params['max_depth'] = st.sidebar.slider('max_depth', 1, 10)
+
+        elif model_name == 'XGBRegressor':
+            params['n_estimators'] = st.sidebar.slider('n_estimators', 100, 500, 100)
+            params['learning_rate'] = st.sidebar.slider('learning_rate', 0.01, 0.3, 0.1)
+            params['max_depth'] = st.sidebar.slider('max_depth', 1, 10)
         elif model_name == 'Linear regression':
             params['n_jobs'] = st.sidebar.slider('n_jobs', -1, 1)
+            
+        elif model_name == 'Lasso':
+            params['alpha'] = st.sidebar.slider('alpha', 0.01, 10.0, 1.0)
+
+        elif model_name == 'Ridge':
+            params['alpha'] = st.sidebar.slider('alpha', 0.01, 10.0, 1.0)
+
+        elif model_name == 'BaggingRegressor':
+            params['n_estimators'] = st.sidebar.slider('n_estimators', 10, 100, 10)
+            params['max_samples'] = st.sidebar.slider('max_samples', 0.1, 1.0, 0.5)
+
     ### division les données
         X,y = preprocess_data(data, target, features, balance_data)
         Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.3, random_state=42)
         
-        
-        ### entrainer le modele
         model = get_model(model_name, params)
         model.fit(Xtrain, ytrain)
         ypred = model.predict(Xtest)
-        if model_name in ["LogisticRegression","RandomForestClassifier",'DecisionTreeClassifier','BaggingClassifier','KNeighborsClassifier']:
-            Accuracy = accuracy_score(ypred, ytest, average = 'micro')
-            Precision = precision_score(ypred, ytest)
-        
-            st.write(f"\n Les performances du modele sont: \n {Accuracy} et le score de precison : {Precision}")
+        ### entrainer le modele
+        if model_name in [ "LogisticRegression", "RandomForestClassifier",
+                          "DecisionTreeClassifier","BaggingClassifier", 
+                          "KNeighborsClassifier",
+                          "GradientBoostingClassifier", "HistGradientBoostingClassifier",
+                          "SVC", "XGBClassifier", "CatBoostClassifier"]:
+            
+            Accuracy = accuracy_score(ypred, ytest)
+            Precision = precision_score(ypred, ytest, average = "macro")
+            Rappel = recall_score(ypred, ytest)
+            #F1-Score = f1_score(ypred, ytest)
+            
+            resultat_score = pd.DataFrame({
+                "Modèle": [model_name],
+                "Accuracy": [Accuracy],
+                "Precison": [Precision],
+                "Rappel": [Rappel]
+                #"F1-score": [F1-Score]
+            })        
+            st.write(f"\n Les performances du modele sont: \n {resultat_score}")
         
         # Courbe ROC
             st.subheader("Courbe ROC")
@@ -221,12 +301,17 @@ def train():
             plt.xlabel("Classe prédite")
             plt.ylabel("Classe réelle")
             st.pyplot(plt)
-        elif model_name in ['Linear regression', "Ridge"]:
-            RMAE= mean_squared_error(ypred, ytest)
-            MAE  = mean_absolute_error(ypred, ytest)
-            st.write(f"La valeurs carre moyenne absolue est : {RMAE} et la MAE est : {MAE}")
-
-    # """faire la prediction"""
+        
+        # Entraînement et évaluation des modèles de régression
+        elif model_name in ['Linear regression', 
+                            'Ridge', 'Lasso', 
+                            'RandomForestRegressor', 'GradientBoostingRegressor',
+                            'BaggingRegressor', 'HistGradientBoostingRegressor', 
+                            'XGBRegressor']:
+            rmse = mean_squared_error(ytest, ypred)
+            mae = mean_absolute_error(ytest, ypred)
+            st.write(f"\n Les performances du modèle : RMSE = {rmse}, MAE = {mae}")
+            # """faire la prediction"""
 
     #st.markdown(' **** Faire la prediction ****')
         
